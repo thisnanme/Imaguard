@@ -1,6 +1,4 @@
 # Imaguard
-### Project Description: Imaguard
-
 **Imaguard** is a Python-based tool designed for educational and recreational purposes, allowing users to experiment with basic image encryption and decryption techniques. By combining two fundamental methods—pixel shuffling and three-dimensional data resetting—Imaguard offers an engaging way to explore the principles of image cryptography. However, it is important to note that this method does not provide robust security and should not be relied upon for protecting sensitive or confidential information.
 
 #### Key Features:
