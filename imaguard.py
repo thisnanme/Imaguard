@@ -1,6 +1,3 @@
-当然可以。下面是修改后的代码，其中的注释已经转换为英文，并且对一些变量名进行了调整以提高可读性：
-
-```python
 import numpy as np
 from PIL import Image
 import random
