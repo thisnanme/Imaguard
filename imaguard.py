@@ -1,70 +1,73 @@
+当然可以。下面是修改后的代码，其中的注释已经转换为英文，并且对一些变量名进行了调整以提高可读性：
+
+```python
 import numpy as np
 from PIL import Image
 import random
 import os
 
 def get_script_directory():
-    """获取脚本所在的目录"""
+    """Get the directory of the script."""
     return os.path.dirname(os.path.abspath(__file__))
 
 def encrypt_image(image_filename, output_filename='encrypted_image.png', key_filename='encryption_keys.npy'):
     script_dir = get_script_directory()
     
-    # 读取原始图像
+    # Load the original image
     image_path = os.path.join(script_dir, image_filename)
     img = Image.open(image_path)
-    RGB = np.array(img)
-    s = RGB.shape
-    n = s[0] * s[1] * s[2]
+    rgb_array = np.array(img)
+    shape = rgb_array.shape
+    total_pixels = shape[0] * shape[1] * shape[2]
 
-    # 第一步: 像素点随机打乱
-    r = list(range(n))
-    random.shuffle(r)  # 随机序列
-    RGBS = RGB.reshape(-1)  # 将图像转换为一维数组
-    RGBSS = RGBS[r].reshape(s)  # 应用随机序列打乱像素
+    # Step 1: Shuffle pixels
+    shuffle_sequence = list(range(total_pixels))
+    random.shuffle(shuffle_sequence)  # Random sequence
+    flattened_rgb = rgb_array.reshape(-1)  # Convert image to a 1D array
+    shuffled_rgb = flattened_rgb[shuffle_sequence].reshape(shape)  # Apply random sequence to shuffle pixels
 
-    # 第二步: 图像三维数据重置
-    Gadd = np.random.randint(0, 256, size=s, dtype=np.uint8)  # 生成随机矩阵
-    G1 = np.zeros_like(RGBSS, dtype=np.float32)
+    # Step 2: Three-dimensional data resetting
+    random_matrix = np.random.randint(0, 256, size=shape, dtype=np.uint8)  # Generate a random matrix
+    encrypted_image = np.zeros_like(shuffled_rgb, dtype=np.float32)
 
-    # 加密操作
-    G1 = 0.1 * RGBSS + 0.9 * Gadd
-    G1 = G1.astype(np.uint8)
+    # Encryption operation
+    encrypted_image = 0.1 * shuffled_rgb + 0.9 * random_matrix
+    encrypted_image = encrypted_image.astype(np.uint8)
 
-    # 保存加密图像和密钥（随机序列和随机矩阵）
+    # Save the encrypted image and keys (random sequence and random matrix)
     encrypted_image_path = os.path.join(script_dir, output_filename)
     key_file_path = os.path.join(script_dir, key_filename)
-    Image.fromarray(G1).save(encrypted_image_path)
-    np.save(key_file_path, {'r': r, 'Gadd': Gadd})
+    Image.fromarray(encrypted_image).save(encrypted_image_path)
+    np.save(key_file_path, {'shuffle_sequence': shuffle_sequence, 'random_matrix': random_matrix})
 
 def decrypt_image(input_filename='encrypted_image.png', key_filename='encryption_keys.npy', output_filename='decrypted_image.png'):
     script_dir = get_script_directory()
     
-    # 读取加密图像和加载密钥
+    # Load the encrypted image and keys
     input_path = os.path.join(script_dir, input_filename)
     key_file_path = os.path.join(script_dir, key_filename)
-    G1 = np.array(Image.open(input_path))
+    encrypted_image = np.array(Image.open(input_path))
     keys = np.load(key_file_path, allow_pickle=True).item()
-    r = keys['r']
-    Gadd = keys['Gadd']
+    shuffle_sequence = keys['shuffle_sequence']
+    random_matrix = keys['random_matrix']
 
-    # 解密操作
-    G2 = (G1 - 0.9 * Gadd) / 0.1
-    G2 = G2.clip(0, 255).astype(np.uint8)
+    # Decryption operation
+    decrypted_image = (encrypted_image - 0.9 * random_matrix) / 0.1
+    decrypted_image = decrypted_image.clip(0, 255).astype(np.uint8)
 
-    # 使用还原索引解密图像
-    f = np.zeros_like(r)
-    for t in range(len(r)):
-        f[r[t]] = t
-    RGBE = G2.reshape(-1)
-    RGBEE = RGBE[f].reshape(G1.shape)
+    # Restore pixel order using the inverse of the shuffle sequence
+    inverse_shuffle = np.zeros_like(shuffle_sequence)
+    for t in range(len(shuffle_sequence)):
+        inverse_shuffle[shuffle_sequence[t]] = t
+    flattened_decrypted = decrypted_image.reshape(-1)
+    restored_rgb = flattened_decrypted[inverse_shuffle].reshape(encrypted_image.shape)
 
-    # 保存解密后的图像
+    # Save the decrypted image
     decrypted_image_path = os.path.join(script_dir, output_filename)
-    Image.fromarray(RGBEE).save(decrypted_image_path)
+    Image.fromarray(restored_rgb).save(decrypted_image_path)
 
-# 测试函数，假设你将图片命名为 "original_image.png" 并放在与脚本相同的文件夹中
+# Test functions, assuming you have an image named "original_image.png" in the same folder as the script.
 encrypt_image('original_image.png')
 decrypt_image()
 
-# 注意：这里没有显示图像的功能，如果需要显示可以用matplotlib.pyplot.imshow() 或者直接打开文件查看。
+# Note: This code does not include functionality to display images. If needed, use matplotlib.pyplot.imshow() or simply open the files to view them.
