@@ -1,3 +1,12 @@
+"""
+Project: Imaguard
+File: imaguard.py
+Author: thisname <https://github.com/thisnanme>
+Date: February 5, 2025
+Copyright Notice: Copyright © 2025 thisname. All rights reserved.
+Description: 
+    Imaguard is a Python tool that securely encrypts and decrypts images using pixel shuffling and three-dimensional data resetting, protecting visual content privacy.
+"""
 import numpy as np
 from PIL import Image
 import secrets
